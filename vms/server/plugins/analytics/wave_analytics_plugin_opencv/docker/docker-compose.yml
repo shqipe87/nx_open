@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  analytics_plugin:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: wave_analytics_plugin_opencv:latest
+    container_name: wave_analytics_dev
+    volumes:
+      - ..:/workspace/wave_analytics_plugin_opencv
+      - build_cache:/workspace/wave_analytics_plugin_opencv/build
+    environment:
+      - OPENCV_CUDA=0
+    working_dir: /workspace/wave_analytics_plugin_opencv
+    stdin_open: true
+    tty: true
+    # Uncomment for GPU support
+    # runtime: nvidia
+    # environment:
+    #   - NVIDIA_VISIBLE_DEVICES=all
+    #   - OPENCV_CUDA=1
+
+  # Optional: Test environment with Wave Server
+  wave_server:
+    image: networkoptix/metavms:latest
+    container_name: wave_test_server
+    ports:
+      - "7001:7001"
+    volumes:
+      - wave_data:/opt/networkoptix/mediaserver/data
+      - ../build/bin/plugins:/opt/networkoptix/mediaserver/bin/plugins
+    environment:
+      - WAVE_LICENSE_KEY=${WAVE_LICENSE_KEY}
+    depends_on:
+      - analytics_plugin
+
+volumes:
+  build_cache:
+  wave_data:

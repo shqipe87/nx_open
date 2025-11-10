@@ -1,0 +1,80 @@
+{
+  "detection": {
+    "model": "yolov8n",
+    "modelPath": "/opt/wave_analytics/models/yolov8n.onnx",
+    "confidence": 0.6,
+    "nmsThreshold": 0.4,
+    "useGPU": true
+  },
+  "analytics": {
+    "loiteringTimeSeconds": 20,
+    "enableQueueAnalytics": true,
+    "enableCrowdDensity": true
+  },
+  "crowdDensity": {
+    "low": 3,
+    "medium": 8,
+    "high": 15,
+    "critical": 25
+  },
+  "zones": [
+    {
+      "name": "store_entrance",
+      "type": "queue_entrance",
+      "coordinates": [[0, 400], [200, 400], [200, 600], [0, 600]]
+    },
+    {
+      "name": "checkout_queue_1",
+      "type": "queue_waiting",
+      "coordinates": [[200, 100], [400, 100], [400, 300], [200, 300]],
+      "maxOccupancy": 10
+    },
+    {
+      "name": "checkout_counter_1",
+      "type": "queue_service",
+      "coordinates": [[400, 100], [500, 100], [500, 300], [400, 300]]
+    },
+    {
+      "name": "checkout_queue_2",
+      "type": "queue_waiting",
+      "coordinates": [[200, 350], [400, 350], [400, 550], [200, 550]],
+      "maxOccupancy": 10
+    },
+    {
+      "name": "checkout_counter_2",
+      "type": "queue_service",
+      "coordinates": [[400, 350], [500, 350], [500, 550], [400, 550]]
+    },
+    {
+      "name": "exit_area",
+      "type": "queue_exit",
+      "coordinates": [[500, 200], [800, 200], [800, 500], [500, 500]]
+    }
+  ],
+  "tripLines": [
+    {
+      "name": "entrance_counter",
+      "start": [150, 500],
+      "end": [150, 600],
+      "bidirectional": true,
+      "directionAtoB": "customer_entered",
+      "directionBtoA": "customer_left"
+    }
+  ],
+  "rules": [
+    {
+      "name": "Queue too long",
+      "zone": "checkout_queue_1",
+      "minCount": 8,
+      "priority": "high",
+      "enabled": true
+    },
+    {
+      "name": "No staff at checkout",
+      "zone": "checkout_counter_1",
+      "maxCount": 0,
+      "priority": "critical",
+      "enabled": true
+    }
+  ]
+}

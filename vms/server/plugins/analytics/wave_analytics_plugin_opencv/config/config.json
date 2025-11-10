@@ -1,0 +1,107 @@
+{
+  "detection": {
+    "model": "yolov8n",
+    "modelPath": "/opt/wave_analytics/models/yolov8n.onnx",
+    "confidence": 0.5,
+    "nmsThreshold": 0.4,
+    "useGPU": true
+  },
+  "tracking": {
+    "maxAge": 30,
+    "minHits": 3,
+    "iouThreshold": 0.3
+  },
+  "analytics": {
+    "loiteringTimeSeconds": 30,
+    "enableFallDetection": true,
+    "enableAggressiveBehavior": true,
+    "enableQueueAnalytics": true,
+    "enableCrowdDensity": true
+  },
+  "crowdDensity": {
+    "low": 5,
+    "medium": 10,
+    "high": 20,
+    "critical": 30
+  },
+  "performance": {
+    "frameSkipRate": 1,
+    "maxObjectsPerFrame": 100,
+    "enableVisualization": true
+  },
+  "zones": [
+    {
+      "name": "entrance",
+      "type": "queue_entrance",
+      "coordinates": [[100, 100], [300, 100], [300, 200], [100, 200]],
+      "loiteringThresholdSeconds": 15
+    },
+    {
+      "name": "queue_area",
+      "type": "queue_waiting",
+      "coordinates": [[300, 100], [600, 100], [600, 400], [300, 400]],
+      "maxOccupancy": 20
+    },
+    {
+      "name": "service_desk",
+      "type": "queue_service",
+      "coordinates": [[600, 150], [800, 150], [800, 350], [600, 350]]
+    },
+    {
+      "name": "restricted_area",
+      "type": "restricted",
+      "coordinates": [[50, 50], [150, 50], [150, 150], [50, 150]],
+      "activeAtNight": true,
+      "startHour": 20,
+      "endHour": 6
+    }
+  ],
+  "tripLines": [
+    {
+      "name": "entrance_line",
+      "start": [100, 250],
+      "end": [900, 250],
+      "bidirectional": true,
+      "directionAtoB": "entering",
+      "directionBtoA": "exiting"
+    },
+    {
+      "name": "checkout_line",
+      "start": [700, 100],
+      "end": [700, 600],
+      "bidirectional": false,
+      "directionAtoB": "checked_out"
+    }
+  ],
+  "rules": [
+    {
+      "name": "No trucks after 6pm",
+      "condition": "object.type == 'truck' && time.hour >= 18",
+      "action": "alert",
+      "priority": "high",
+      "enabled": true
+    },
+    {
+      "name": "Too many people in restricted area",
+      "objectType": "person",
+      "zone": "restricted_area",
+      "maxCount": 2,
+      "priority": "high",
+      "enabled": true
+    },
+    {
+      "name": "Vehicle in pedestrian zone",
+      "condition": "(object.type == 'car' || object.type == 'truck') && zone.pedestrian_area == true",
+      "action": "alert",
+      "priority": "medium",
+      "enabled": true
+    },
+    {
+      "name": "Fast moving object",
+      "condition": "object.speed > 50",
+      "action": "alert",
+      "priority": "medium",
+      "enabled": true
+    }
+  ]
+}

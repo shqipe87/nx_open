@@ -1,0 +1,56 @@
+# Build directories
+build/
+bin/
+lib/
+cmake-build-*/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled files
+*.o
+*.so
+*.a
+*.dylib
+*.dll
+*.exe
+
+# Model files (too large for git)
+models/*.onnx
+models/*.caffemodel
+models/*.pb
+models/*.weights
+models/*.pt
+models/*.pth
+
+# Configuration overrides
+config/local_*.json
+
+# Test outputs
+tests/output/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# Package files
+*.tar.gz
+*.zip
+*.deb
+*.rpm

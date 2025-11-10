@@ -1,0 +1,84 @@
+{
+  "detection": {
+    "model": "yolov8s",
+    "modelPath": "/opt/wave_analytics/models/yolov8s.onnx",
+    "confidence": 0.4,
+    "nmsThreshold": 0.4,
+    "useGPU": true
+  },
+  "analytics": {
+    "loiteringTimeSeconds": 45,
+    "enableFallDetection": true,
+    "enableAggressiveBehavior": true,
+    "enableCrowdDensity": false,
+    "enableQueueAnalytics": false
+  },
+  "performance": {
+    "frameSkipRate": 2,
+    "enableVisualization": true
+  },
+  "zones": [
+    {
+      "name": "restricted_zone_1",
+      "type": "restricted",
+      "coordinates": [[50, 50], [400, 50], [400, 300], [50, 300]],
+      "activeAtNight": true,
+      "startHour": 18,
+      "endHour": 8
+    },
+    {
+      "name": "restricted_zone_2",
+      "type": "intrusion",
+      "coordinates": [[600, 200], [900, 200], [900, 500], [600, 500]],
+      "activeAtNight": false,
+      "startHour": 0,
+      "endHour": 24
+    },
+    {
+      "name": "loitering_zone",
+      "type": "monitoring",
+      "coordinates": [[100, 400], [500, 400], [500, 700], [100, 700]],
+      "loiteringThresholdSeconds": 60
+    }
+  ],
+  "tripLines": [
+    {
+      "name": "perimeter_fence",
+      "start": [0, 350],
+      "end": [1920, 350],
+      "bidirectional": false,
+      "directionAtoB": "fence_breach"
+    },
+    {
+      "name": "door_sensor",
+      "start": [960, 0],
+      "end": [960, 200],
+      "bidirectional": true,
+      "directionAtoB": "door_entry",
+      "directionBtoA": "door_exit"
+    }
+  ],
+  "rules": [
+    {
+      "name": "Person in restricted area at night",
+      "condition": "object.type == 'person' && time.hour >= 18 || time.hour < 8",
+      "zone": "restricted_zone_1",
+      "priority": "critical",
+      "enabled": true
+    },
+    {
+      "name": "Vehicle near building",
+      "condition": "(object.type == 'car' || object.type == 'truck' || object.type == 'motorcycle')",
+      "zone": "restricted_zone_2",
+      "priority": "high",
+      "enabled": true
+    },
+    {
+      "name": "Multiple people loitering",
+      "zone": "loitering_zone",
+      "minCount": 3,
+      "priority": "medium",
+      "enabled": true
+    }
+  ]
+}
