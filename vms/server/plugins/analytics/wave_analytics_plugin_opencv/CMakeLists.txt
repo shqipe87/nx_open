@@ -28,6 +28,8 @@ set(WAVE_OPENCV_PLUGIN_SOURCES
     src/nx/vms_server_plugins/analytics/wave_opencv/device_agent.cpp
     src/nx/vms_server_plugins/analytics/wave_opencv/device_agent.h
     src/nx/vms_server_plugins/analytics/wave_opencv/types.h
+    src/nx/vms_server_plugins/analytics/wave_opencv/config_loader.cpp
+    src/nx/vms_server_plugins/analytics/wave_opencv/config_loader.h
     src/nx/vms_server_plugins/analytics/wave_opencv/object_detector.cpp
     src/nx/vms_server_plugins/analytics/wave_opencv/object_detector.h
     src/nx/vms_server_plugins/analytics/wave_opencv/object_tracker.cpp

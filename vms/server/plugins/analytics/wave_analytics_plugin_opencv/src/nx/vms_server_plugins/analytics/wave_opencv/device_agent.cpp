@@ -1,6 +1,7 @@
 // Copyright 2024. All Rights Reserved.
 
 #include "device_agent.h"
+#include "config_loader.h"
 
 #include <nx/kit/debug.h>
 #include <nx/kit/json.h>
@@ -316,15 +317,63 @@ void DeviceAgent::generateEventMetadata(
 
 void DeviceAgent::loadConfiguration()
 {
-    // Load configuration from settings or use defaults
-    m_config = PluginConfiguration();
+    // Try to load configuration from file
+    bool configLoaded = false;
 
-    // In a production plugin, you would load settings from the Engine's settings model
-    // For now, we'll use the default configuration
+    // Search for config file in default locations
+    std::vector<std::string> configPaths = {
+        "/etc/wave_analytics/config.json",
+        "/opt/wave_analytics/config.json",
+        "./config/config.json",
+        "../config/config.json"
+    };
 
-    NX_PRINT << "Configuration loaded: model=" << m_config.modelType
-             << " confidence=" << m_config.confidenceThreshold
-             << " frameSkip=" << m_config.frameSkipRate;
+    // Also check for device-specific config
+    std::string deviceIdStr = nx::kit::utils::toString(m_deviceId);
+    configPaths.insert(configPaths.begin(),
+        "/etc/wave_analytics/device_" + deviceIdStr + ".json");
+
+    for (const auto& path : configPaths)
+    {
+        std::ifstream file(path);
+        if (file.good())
+        {
+            file.close();
+            try
+            {
+                m_config = ConfigurationLoader::loadFromFile(path);
+
+                // Validate configuration
+                std::string errorMessage;
+                if (ConfigurationLoader::validate(m_config, errorMessage))
+                {
+                    configLoaded = true;
+                    NX_PRINT << "Configuration loaded from: " << path;
+                    break;
+                }
+                else
+                {
+                    NX_PRINT << "Configuration validation failed: " << errorMessage;
+                }
+            }
+            catch (const std::exception& e)
+            {
+                NX_PRINT << "Error loading config from " << path << ": " << e.what();
+            }
+        }
+    }
+
+    if (!configLoaded)
+    {
+        NX_PRINT << "Using default configuration";
+        m_config = PluginConfiguration();
+    }
+
+    NX_PRINT << "Configuration: model=" << m_config.modelType
+             << ", confidence=" << m_config.confidenceThreshold
+             << ", frameSkip=" << m_config.frameSkipRate
+             << ", zones=" << m_config.zones.size()
+             << ", rules=" << m_config.rules.size();
 }
 
 void DeviceAgent::doSetNeededMetadataTypes(
